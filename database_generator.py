@@ -5,12 +5,15 @@ Created on Mon Mar 20 00:17:56 2017
 @author: Michael
 """
 
-from faker import Factory
+# TURN OFF AUTHORIZATION OF YOUR FIREBASE PROJECT BEFORE RUNNING THE CODE.
+# THE TWO PACKAGE NAMES ARE INCLUDED BELOW 
+# ALSO THIS WAS DONE IN PYTHON 2.7
+
+from faker import Factory # pip install Faker
 from random import randint
-from firebase import firebase
+from firebase import firebase # pip install python-firebase
 
 faker = Factory.create()
-#authentication = firebase.FirebaseAuthentication('123456789', 'ghisilie@unlv.nevada.edu')
 
 carMake = ["Nissan", "Chevy", "Honda", "Cadillac", "Ferrari",
            "Ford", "Lexus", "Hyundai", "Dodge", "Mitsubishi"]
