@@ -12,6 +12,10 @@ Created on Mon Mar 20 00:17:56 2017
 from faker import Factory # pip install Faker
 from random import randint
 from firebase import firebase # pip install python-firebase
+from datetime import timedelta  
+import os
+import datetime
+
 
 faker = Factory.create()
 
@@ -75,9 +79,11 @@ for i in range(setsNum):
     phone = faker.phone_number()        # Phone Number    
             # permitInfo
     index = randint(0,3)
-    permitType = spotTypelist[index]    # Permit Type
-    expDate = faker.date()              # Purchase Date
-    purchaseDate = faker.date()         # Expiration Date
+    permitType = spotTypelist[index]    # Permit Type 
+                                        # Purchase Date
+    purchaseDate = datetime.datetime.date(faker.date_time_between(start_date="-1y", end_date="now", tzinfo=None))
+                                        # Expiration Date (exactly one year added for permits)
+    expDate = purchaseDate + timedelta(days=365)     
     
     firebase.put(firebaseDirectory, userID, params={'print': 'silent'},
                          data={'userEmail': userEmail,
@@ -89,7 +95,7 @@ for i in range(setsNum):
                                    'expDate': expDate,
                                    'purchaseDate': purchaseDate}})
 
-    firebaseDirectory = firebaseDirectory + userID                               
+    firebaseDirectory = firebaseDirectory + userID + "/vehicles"                              
     vehiclesNum = randint(1,4)
     for j in range(vehiclesNum, 0, -1):
             # vehicleInfo
@@ -109,3 +115,4 @@ for i in range(setsNum):
                                'color': color,
                                'licensePlate': licensePlate})
                                
+os._exit(0)
