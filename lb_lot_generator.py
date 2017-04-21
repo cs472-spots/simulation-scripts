@@ -32,7 +32,7 @@ index = textColumns = 0
 vehiclesNum = setsNum = 0
 userURL = projectName = firebaseDirectory = header = vehicleString = []
 lot = spotID = vacancy = spotType = occupant = []
-userEmail = userID = firstName = lastName = phone = permitType = expDate = purchaseDate = []
+userEmail = userID = cardID = firstName = lastName = phone = permitType = expDate = purchaseDate = []
 make = model = color = licensePlate = []
 authorized = False
 
@@ -46,7 +46,7 @@ spotsNum = 50
 useraccountsNum = 100
 
 firebase = firebase.FirebaseApplication(userURL, None)
-text_ids = open("userIDS.txt", "w")
+text_ids = open("cardIDS.txt", "w")
 
 
 sys.stdout.write("Uploading Spots section of database... ")
@@ -77,11 +77,13 @@ sys.stdout.flush()
 for i in range(1, useraccountsNum+1):
         # UserAccounts			# User ID
     userID = str(randint(1000000000, 9999999999))
+					# Card ID
+    cardID = str(randint(0, 2147483647));
     textColumns = textColumns + 1
     if i == useraccountsNum:
-	text_ids.write(userID)
+	text_ids.write("\"%s\"" % cardID)
     else:
-    	text_ids.write("%s, " % userID)
+    	text_ids.write("\"%s\", " % cardID)
     if textColumns >= 5:
     	text_ids.write("\n")
 	textColumns = 0
@@ -100,7 +102,8 @@ for i in range(1, useraccountsNum+1):
     expDate = purchaseDate + timedelta(days=365)     
     
     firebase.put(firebaseDirectory, userID, params={'print': 'silent'},
-                         data={'userEmail': userEmail,
+                         data={'cardID': cardID,
+			       'userEmail': userEmail,
                                'firstName': firstName,
                                'lastName': lastName,
                                'phone': phone,
