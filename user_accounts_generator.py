@@ -67,7 +67,7 @@ for i in range(1, useraccountsNum+1):
     lastName = faker.last_name()        # Last Name
     phone = faker.phone_number()        # Phone Number    
     	# permitInfo
-    index = randint(0,3)
+    index = randint(0,1)
     permitType = spotTypelist[index]    # Permit Type 
                                         # Purchase Date
     purchaseDate = datetime.datetime.date(faker.date_time_between(start_date="-1y", end_date="now", tzinfo=None))
