@@ -2,8 +2,8 @@
 #include "RestClient.h"   // Library Downloaded from: https://github.com/DaKaZ/esp8266-restclient
 #include "cardIDS.h"
 
-#define WiFi_ID       ""
-#define WiFi_Password ""
+#define WiFi_ID       "HEXA"
+#define WiFi_Password "hexapassword"
 
 #define SWITCH_PIN    5
 #define Green_Led     15
@@ -11,7 +11,7 @@
 
 RestClient client = RestClient("unlv-spots.herokuapp.com");
 String lotID, cardID;
-int lotNUM;
+int lotNUM, dbSuccess, dbFailure;
 long randIndex;
 //bool vacant;
 
@@ -49,7 +49,7 @@ void loop() {
       lotID = "0" + String(lotNUM);
     else
       lotID = "00" + String(lotNUM);
-    lotID = "0100";
+    //lotID = "0100";
       
     if(getVacancy()) {
       updateVacancy("/false");
@@ -72,6 +72,7 @@ void loop() {
       flash_LED(Green_Led, 2000);
     }
     Serial.println();
+    delay(2000);
     
   }
 
@@ -123,7 +124,16 @@ void updateVacancy(String vacancy) {
   const char* c = dbPath.c_str();
   Serial.println(dbPath);
   int statusCode = client.post(c, "POSTDATA", &response);
-
+  if(statusCode == 200)
+    dbSuccess++;
+  else
+    dbFailure++;
+  Serial.print("Successful DB Requests: ");
+  Serial.println(dbSuccess);
+  Serial.print("Failed DB Requests: ");
+  Serial.println(dbFailure);
+  Serial.println(statusCode);
+  
 }
 
 bool swipeCard() {
@@ -133,12 +143,23 @@ bool swipeCard() {
   dbPath += lotID;
   randIndex = random(1, 100);
   cardID = randomCard(int(randIndex));
+  dbPath += "/";
+  dbPath += cardID;
 
   const char* c = dbPath.c_str();
   Serial.print("Checking for authorization of cardID: ");
   Serial.println(cardID);
   Serial.println(dbPath);
   int statusCode = client.post(c, "POSTDATA", &response);
+  if(statusCode == 200)
+    dbSuccess++;
+  else
+    dbFailure++;
+  Serial.print("Successful DB Requests: ");
+  Serial.println(dbSuccess);
+  Serial.print("Failed DB Requests: ");
+  Serial.println(dbFailure);
+  Serial.println(statusCode);
   
   if(response == "{\"authorized\":true}")
     return true;
@@ -156,8 +177,15 @@ bool getVacancy() {
   const char* c = dbPath.c_str();
   Serial.println(dbPath);
   int statusCode = client.get(c, &response);
+  if(statusCode == 200)
+    dbSuccess++;
+  else
+    dbFailure++;
+  Serial.print("Successful DB Requests: ");
+  Serial.println(dbSuccess);
+  Serial.print("Failed DB Requests: ");
+  Serial.println(dbFailure);
   Serial.println(statusCode);
-  Serial.println(response);
   
   if(response == "{\"Vacancy\":true}")
     return true;
