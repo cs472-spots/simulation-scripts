@@ -2,8 +2,8 @@
 #include "RestClient.h"   // Library Downloaded from: https://github.com/DaKaZ/esp8266-restclient
 #include "cardIDS.h"
 
-#define WiFi_ID       "HEXA"
-#define WiFi_Password "hexapassword"
+#define WiFi_ID       ""
+#define WiFi_Password ""
 
 #define SWITCH_PIN    5
 #define Green_Led     15
@@ -21,6 +21,7 @@ void flash_LED(int, int);
 void updateVacancy(String);
 bool swipeCard();
 bool getVacancy();
+void printStats();
 
 void setup() {
 
@@ -28,8 +29,10 @@ void setup() {
   pinMode(Green_Led, OUTPUT);
   pinMode(Red_Led, OUTPUT);
   Serial.begin(9600);
+  delay(2000);
   //vacant = false;
   Wifi_connect();
+  Serial.println("Push button for simulation of a parking spot!");
 
 }
 
@@ -59,7 +62,7 @@ void loop() {
         flash_LED(Red_Led, 2000);
       }
       else {
-        Serial.print("User wasn't authorized and left from spot: ");
+        Serial.print("User was not authorized and left from spot: ");
         Serial.println(lotID);
         updateVacancy("/true");
         flash_LED(Green_Led, 2000);
@@ -72,7 +75,7 @@ void loop() {
       flash_LED(Green_Led, 2000);
     }
     Serial.println();
-    delay(2000);
+    Serial.println("Push button for simulation of a parking spot!");
     
   }
 
@@ -82,18 +85,19 @@ void loop() {
 // If unable to connect, check the weefee_ID and weefee_Password fields
 void Wifi_connect()
 {
-  Serial.print(F("Card UID: "));
+  //Serial.println(F("Card UID: "));
   // Code to setup esp8266 to connect to zee weefee 
   //WiFi.begin(WiFi_ID, WiFi_Password);
-  Serial.print("Connecting to ze network");
+  Serial.print("Connecting to the network");
   WiFi.begin(WiFi_ID, WiFi_Password);
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
     delay(500);
   }
   Serial.println();
-  Serial.print("connected: ");
+  Serial.print("Connected: ");
   Serial.println(WiFi.localIP());
+  Serial.println();
 }
 
 // Flashes a designated LED for a specified duration, the LED will always remain
@@ -122,17 +126,17 @@ void updateVacancy(String vacancy) {
   dbPath += vacancy;
 
   const char* c = dbPath.c_str();
+  Serial.print("Updating vacancy of spot: ");
+  Serial.println(lotID);
+  Serial.print("POST request: ");
   Serial.println(dbPath);
   int statusCode = client.post(c, "POSTDATA", &response);
   if(statusCode == 200)
     dbSuccess++;
   else
     dbFailure++;
-  Serial.print("Successful DB Requests: ");
-  Serial.println(dbSuccess);
-  Serial.print("Failed DB Requests: ");
-  Serial.println(dbFailure);
-  Serial.println(statusCode);
+  //Serial.println(statusCode);
+  return;
   
 }
 
@@ -147,19 +151,16 @@ bool swipeCard() {
   dbPath += cardID;
 
   const char* c = dbPath.c_str();
-  Serial.print("Checking for authorization of cardID: ");
+  Serial.print("Checking for authorization of user with cardID: ");
   Serial.println(cardID);
+  Serial.print("POST request: ");
   Serial.println(dbPath);
   int statusCode = client.post(c, "POSTDATA", &response);
   if(statusCode == 200)
     dbSuccess++;
   else
     dbFailure++;
-  Serial.print("Successful DB Requests: ");
-  Serial.println(dbSuccess);
-  Serial.print("Failed DB Requests: ");
-  Serial.println(dbFailure);
-  Serial.println(statusCode);
+  //Serial.println(statusCode);
   
   if(response == "{\"authorized\":true}")
     return true;
@@ -175,22 +176,35 @@ bool getVacancy() {
   dbPath += lotID;
   
   const char* c = dbPath.c_str();
+  Serial.print("Grabbing vacancy of spot: ");
+  Serial.println(lotID);
+  Serial.print("GET request: ");
   Serial.println(dbPath);
   int statusCode = client.get(c, &response);
   if(statusCode == 200)
     dbSuccess++;
   else
     dbFailure++;
+  //Serial.println(statusCode);
+  
+  if(response == "{\"Vacancy\":true}") {
+    Serial.println("Spot is available. User can swipe card.");
+    return true;
+  }
+  else {
+    Serial.println("Spot was taken. User is leaving.");
+    return false;
+  }
+
+}
+
+void printStats() {
+
   Serial.print("Successful DB Requests: ");
   Serial.println(dbSuccess);
   Serial.print("Failed DB Requests: ");
   Serial.println(dbFailure);
-  Serial.println(statusCode);
-  
-  if(response == "{\"Vacancy\":true}")
-    return true;
-  else
-    return false;
+  return;
 
 }
 
