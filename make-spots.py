@@ -8,7 +8,7 @@ def writeSpot(spot, indent):
     spotString = '{indent}"{label}" : false,\n'.format(indent=indent*2, label='authorized')
     spotString += '{indent}"{label}" : "",\n'.format(indent=indent*2, label='occupant')
     spotString += '{indent}"{label}" : "staff",\n'.format(indent=indent*2, label='type')
-    spotString += '{indent}"{label}" : "false",\n'.format(indent=indent*2, label='vacancy')
+    spotString += '{indent}"{label}" : false,\n'.format(indent=indent*2, label='vacancy')
     spotString += '{indent}"{label}" : {lat},\n'.format(indent=indent*2, label='lat', lat=spot[0])
     spotString += '{indent}"{label}" : {lng}\n'.format(indent=indent*2, label='lng', lng=spot[1])
     return spotString
